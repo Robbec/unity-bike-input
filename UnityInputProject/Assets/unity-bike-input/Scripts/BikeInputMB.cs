@@ -2,9 +2,11 @@ using System;
 using System.IO.Ports;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class BikeInputMB : MonoBehaviour
 {
+    public UnityEvent<int> ValueUpdated;
     [SerializeField]
     private string[] ports;
 
@@ -25,19 +27,12 @@ public class BikeInputMB : MonoBehaviour
             Debug.Log(portName);
         }
 
-        SerialPort port = new SerialPort(portName, 9600, Parity.None, 8, StopBits.One);
-        port.DataReceived += Port_DataReceived;
+        port = new SerialPort(portName, 9600, Parity.None, 8, StopBits.One);
         port.Open();
 
         Debug.Log("port is open: " + port.IsOpen);
     }
 
-    private void Port_DataReceived(object sender, SerialDataReceivedEventArgs e)
-    {
-        string data = port.ReadExisting();
-
-        Debug.Log(data);
-    }
 
 
     // Update is called once per frame
@@ -47,6 +42,7 @@ public class BikeInputMB : MonoBehaviour
         if (line != null && line != "")
         {
             Debug.Log(line);
+            ValueUpdated?.Invoke(int.Parse(line));
         }
     }
 }
